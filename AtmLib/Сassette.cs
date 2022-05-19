@@ -1,8 +1,8 @@
-﻿namespace ATM
+﻿namespace Class.ATM
 {
-    public class Сassette
+    public class Cassette
     {
-        public Сassette(int nominal, int count, bool isWork)
+        public Cassette(int nominal, int count, bool isWork)
         {
             NominalValue = nominal;
             BanknoteCount = count;

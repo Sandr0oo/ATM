@@ -1,8 +1,81 @@
-﻿@{
+﻿@model Class.ATM.ATM
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+<script language="JavaScript">
+
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        let charCode = (evt.which) ? evt.which : evt.keyCode;
+        if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
+            evt.preventDefault();
+        } else {
+            return true;
+        }
+    }
+</script>
+
+<form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="Index">
+    <div class="form-group py-sm-3 mb-0 pt-5 rounded vh-100 bg-light">
+        <div class="row">
+            <div class="col">
+                <h1 class="text-center">ATM</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-auto m-2"></div>
+            <div class="col m-2"><h4 class="text-center">Номинал</h4></div>
+            <div class="col m-2"><h4 class="text-center">Количество купюр</h4></div>
+            <div class="col m-2"><h4 class="text-center">Работает ли кассета</h4></div>
+        </div>
+        @{
+            int i = 0;
+        }
+        @if (Model?.Cassettes != null)
+        {
+            @foreach (var cassette in Model.Cassettes)
+            {
+                <div class="row mb-2">
+                    <label class="col-md-auto m-2 text-center col-form-label">Кассета @(i++):</label>
+                    <div class="col m-2">
+                        <select class="form-control" name="nomainal@(i)">
+                            @foreach (var nomainal in Model.Cassettes.Select(n => n.NominalValue))
+                            {
+                                if (cassette.NominalValue == nomainal)
+                                {
+                                    <option selected value="@nomainal">@nomainal</option>
+                                }
+                                else
+                                {
+                                    <option value="@nomainal">@nomainal</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col m-2">
+                        <input type="number" name="BanknoteCount@(i)" min="0" value="@cassette.BanknoteCount" oninput="validity.valid||(value='');" onpress="isNumber(event)" />
+                    </div>
+                    <div class="col m-2">
+                        <select class="form-control" name="isWork@(i)">
+                            @if (cassette.IsWork)
+                            {
+                                <option selected value="true">Работает</option>
+                                <option value="false">Не работает</option>
+                            }
+                            else
+                            {
+                                <option value="true">Работает</option>
+                                <option selected value="false">Не работает</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            }
+        }
+        <div class="row d-flex justify-content-center">
+            <input type="submit" class="btn btn-primary text-center" value="Выдать деньги" />
+        </div>
+    </div>
+</form>

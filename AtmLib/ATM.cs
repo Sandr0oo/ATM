@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace ATM
+namespace Class.ATM
 {
     public class ATM
     {
-        public List<Сassette> Cassettes { get; set; }
+        public IEnumerable<Cassette> Cassettes { get; set; }
 
         private Dictionary<int, int> _аtmOutput { get; set; }
 
         public long TimeForCalculateLastIssueMoney { get; set; }
 
-        public ATM(List<Сassette> сassettes)
+        public ATM(IEnumerable<Cassette> сassettes)
         {
-            Cassettes = сassettes;
+            Cassettes = сassettes.OrderByDescending(c => c.NominalValue);
             _аtmOutput = new Dictionary<int, int>();
         }
 
@@ -45,7 +45,7 @@ namespace ATM
             var summInAllCassettes = Cassettes.Sum(c => c.NominalValue * c.BanknoteCount);
             if (summInAllCassettes < needSum)
                 return false;
-            foreach (var cassette in Cassettes.OrderByDescending(c => c.NominalValue))
+            foreach (var cassette in Cassettes)
             {
                 if (cassette.IsWork)
                 {
@@ -66,6 +66,8 @@ namespace ATM
                     }
                 }
             }
+            if (remain > 0)
+                return false;
             return true;
         }
     }
