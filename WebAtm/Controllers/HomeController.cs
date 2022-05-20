@@ -42,9 +42,11 @@ namespace WebAtm.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(int needSumm = 1200)
+        public IActionResult Index(string needMoney)
         {
             List<Cassette> cassettes = new();
+
+            int moneyForIssue = int.Parse(needMoney);
 
             for (int i = 1; i <= 8; i++)
             {
@@ -55,7 +57,7 @@ namespace WebAtm.Controllers
                 
             }
             ATM atm = new ATM(cassettes);
-            atm.GetMoney(needSumm);
+            var aaa = atm.GetMoney(moneyForIssue);
             return View(atm);
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AtmLib;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,40 +10,50 @@ namespace Class.ATM
     {
         public IEnumerable<Cassette> Cassettes { get; set; }
 
-        private Dictionary<int, int> _аtmOutput { get; set; }
-
-        public long TimeForCalculateLastIssueMoney { get; set; }
+        public List<MoneyOperation> MoneyOperations { get; set; }
 
         public ATM(IEnumerable<Cassette> сassettes)
         {
             Cassettes = сassettes.OrderByDescending(c => c.NominalValue);
-            _аtmOutput = new Dictionary<int, int>();
+            MoneyOperations = new();
         }
 
-        public Dictionary<int, int> GetMoney(int needSum)
+        public MoneyOperation GetMoney(int needSum)
         {
             var watch = Stopwatch.StartNew();
-            
-            _аtmOutput.Clear();
-            if (isCanIssueMoney(needSum))
+
+            MoneyOperation operation = new();
+            if (needSum > 0 && isCanIssueMoney(needSum, operation))
             {
+
+                operation.IsSuccessOperation = true;
+                foreach (var cassett in Cassettes)
+                {
+                    if(cassett.IsWork)
+                    {
+                        if (operation.AtmOutput.ContainsKey(cassett.NominalValue))
+                            cassett.BanknoteCount -= operation.AtmOutput[cassett.NominalValue];
+                    }
+                }
                 watch.Stop();
-                TimeForCalculateLastIssueMoney = watch.ElapsedMilliseconds;
-                return _аtmOutput;
+                operation.TimeForCalculateLastIssueMoney = watch.ElapsedMilliseconds;
+                MoneyOperations.Add(operation);
+                return operation;
             }
             else
             {
                 watch.Stop();
-                TimeForCalculateLastIssueMoney = watch.ElapsedMilliseconds;
-                return null;
+                operation.TimeForCalculateLastIssueMoney = watch.ElapsedMilliseconds;
+                operation.IsSuccessOperation = false;
+                MoneyOperations.Add(operation);
+                return operation;
             }
         }
 
-        private bool isCanIssueMoney(int needSum)
+        private bool isCanIssueMoney(int needSum, MoneyOperation operation)
         {
             int remain = needSum;
-            Console.WriteLine("Надо выдать: " + remain);
-            var summInAllCassettes = Cassettes.Sum(c => c.NominalValue * c.BanknoteCount);
+            var summInAllCassettes = Cassettes.Select(x => x).Where(c => c.IsWork).Sum(c => c.NominalValue * c.BanknoteCount);
             if (summInAllCassettes < needSum)
                 return false;
             foreach (var cassette in Cassettes)
@@ -52,14 +63,12 @@ namespace Class.ATM
                     if (cassette.NominalValue <= remain && cassette.BanknoteCount > 0)
                     {
                         remain -= cassette.NominalValue;
-                        cassette.BanknoteCount--;
-                        if (!_аtmOutput.TryAdd(cassette.NominalValue, 1))
+                        if (!operation.AtmOutput.TryAdd(cassette.NominalValue, 1))
                         {
-                            _аtmOutput[cassette.NominalValue] += 1;
+                            operation.AtmOutput[cassette.NominalValue] += 1;
                         }
-                        Console.WriteLine("Выдана банкнота номиналом: {0}", cassette.NominalValue);
 
-                        if (!isCanIssueMoney(remain))
+                        if (!isCanIssueMoney(remain, operation))
                             return false;
                         else
                             return true;

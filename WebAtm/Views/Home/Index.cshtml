@@ -18,7 +18,7 @@
 </script>
 
 <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="Index">
-    <div class="form-group py-sm-3 mb-0 pt-5 rounded vh-100 bg-light">
+    <div class="form-group py-sm-3 mb-0 pt-5 rounded bg-light">
         <div class="row">
             <div class="col">
                 <h1 class="text-center">ATM</h1>
@@ -74,8 +74,54 @@
                 </div>
             }
         }
-        <div class="row d-flex justify-content-center">
+    <div class="row d-flex justify-content-center m-2">
+        <label class="col-md-auto m-2 text-center col-form-label">Количество денег для выдачи:</label>
+        <input class="col" type="number" name="needMoney" min="0" value="0" oninput="validity.valid||(value='');" onpress="isNumber(event)" />
+    </div>
+        <div class="row d-flex justify-content-center m-2">
             <input type="submit" class="btn btn-primary text-center" value="Выдать деньги" />
         </div>
+        @if (Model.MoneyOperations.Count() != 0 && Model.MoneyOperations.Last().IsSuccessOperation)
+        {
+            <div class="row">
+                <div class="col">
+                    <h1 class="text-center">Деньги успешно выданы!</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h3 class="text-center">Время выополнения: @Model.MoneyOperations.Last().TimeForCalculateLastIssueMoney мс.</h3>
+                </div>
+            </div>
+            <div class="row d-flex justify-content-center">
+                <div class="col"></div>
+                <div class="col">
+                    <table class="table m-2">
+                        <thead class="text-center">
+                            <tr>
+                                <th scope="col">Номинал</th>
+                                <th scope="col">Количество купюр</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var nominalAndCount in Model.MoneyOperations.Last().AtmOutput)
+                            {
+                                <tr>
+                                    <td>@nominalAndCount.Key</td>
+                                    <td>@nominalAndCount.Value </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col"></div>
+            </div>
+        }
+        else if (Model.MoneyOperations.Count() != 0 && Model.MoneyOperations.Last().IsSuccessOperation == false)
+        {
+            <div class="row d-flex justify-content-center">
+                <h1 class="text-center">Невозможно выдать такую сумму!</h1>
+            </div>
+        }
     </div>
 </form>
