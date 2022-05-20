@@ -25,7 +25,7 @@ namespace WebAtm.Controllers
         {
             List<Cassette> cassettes = new()
             {
-                new Cassette(20, 1000, false),
+                new Cassette(100, 10, false),
                 new Cassette(100, 5, true),
                 new Cassette(200, 10, true),
                 new Cassette(500, 10, true),
